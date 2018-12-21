@@ -4,9 +4,9 @@ package ex01.pyrmont;
 import java.io.*;
 
 public class Response {
-    public static final int BUFFER_SIZE = 2048;
-    Request request;
-    OutputStream outputStream;
+    private static final int BUFFER_SIZE = 2048;
+    private Request request;
+    private OutputStream outputStream;
 
     public Response(OutputStream outputStream) {
         this.outputStream = outputStream;
