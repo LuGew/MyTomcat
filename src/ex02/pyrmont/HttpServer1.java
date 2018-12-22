@@ -1,5 +1,6 @@
 package ex02.pyrmont;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,9 +27,23 @@ public class HttpServer1 {
                 Socket socket = serverSocket.accept();
                 InputStream inputStream = socket.getInputStream();
                 OutputStream outputStream = socket.getOutputStream();
+                Request request = new Request(inputStream);
+                request.parse();
+                Response response = new Response(outputStream);
+                response.setRequest(request);
+                if (request.getUri().startsWith("/servlet/")) {
+                    ServletProcessor1 servletProcessor1 = new ServletProcessor1();
+                    servletProcessor1.process(request, response);
+                } else {
+                    StaticResourceProcessor staticResourceProcessor = new StaticResourceProcessor();
+                    staticResourceProcessor.process(request, response);
+                }
 
+                socket.close();
+                shutdown = request.getUri().equals(SHUTDOWN_COMMAND);
             } catch (IOException e) {
                 e.printStackTrace();
+                System.exit(1);
             }
 
         }
