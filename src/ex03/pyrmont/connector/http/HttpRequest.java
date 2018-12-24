@@ -1,5 +1,7 @@
 package ex03.pyrmont.connector.http;
 
+import ex03.pyrmont.connector.RequestStream;
+import org.apache.catalina.util.Enumerator;
 import org.apache.catalina.util.ParameterMap;
 import org.apache.catalina.util.RequestUtil;
 
@@ -8,14 +10,12 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Principal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -37,7 +37,7 @@ public class HttpRequest implements HttpServletRequest {
 
     protected HashMap attributes = new HashMap();
     protected String authorization = null;
-    protected String contentPath = "";
+    protected String contextPath = "";
 
 
     protected ArrayList cookies = new ArrayList();
@@ -77,7 +77,7 @@ public class HttpRequest implements HttpServletRequest {
         }
     }
 
-    protected void parseParameter() {
+    protected void parseParameters() {
         if (parsed) {
             return;
         }
@@ -135,6 +135,84 @@ public class HttpRequest implements HttpServletRequest {
         parameters = results;
     }
 
+    public void addCookie(Cookie cookie) {
+        synchronized (cookies) {
+            cookies.add(cookie);
+        }
+    }
+
+    public ServletInputStream createInputStream() {
+        return (new RequestStream(this));
+    }
+
+    public InputStream getStream() {
+        return inputStream;
+    }
+
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public void setContentLength(int contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    public void setInet(InetAddress inetAddress) {
+        this.inetAddress = inetAddress;
+    }
+
+    public void setContextPath(String path) {
+        if (path == null)
+            this.contextPath = "";
+        else
+            this.contextPath = path;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public void setPathInfo(String path) {
+        this.pathInfo = path;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
+    }
+
+    public void setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
+    }
+
+    public void setServerName(String name) {
+        this.serverName = name;
+    }
+
+    public void setServerPort(int port) {
+        this.serverPort = port;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    public void setRequestedSessionCookie(boolean flag) {
+        this.requestedSessionCookie = flag;
+    }
+
+    public void setRequestedSessionId(String requestedSessionId) {
+        this.requestedSessionId = requestedSessionId;
+    }
+
+    public void setRequestedSessionURL(boolean flag) {
+        requestedSessionURL = flag;
+    }
+
     @Override
     public String getAuthType() {
         return null;
@@ -142,42 +220,80 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public Cookie[] getCookies() {
-        return new Cookie[0];
+        synchronized (cookies) {
+            if (cookies.size() < 1)
+                return (null);
+            Cookie results[] = new Cookie[cookies.size()];
+            return ((Cookie[]) cookies.toArray(results));
+        }
     }
 
     @Override
-    public long getDateHeader(String s) {
-        return 0;
+    public long getDateHeader(String name) {
+        String value = getHeader(name);
+        if (value == null)
+            return (-1L);
+        value += " ";
+
+        for (int i = 0; i < formats.length; i++) {
+            try {
+                Date date = formats[i].parse(value);
+                return (date.getTime());
+            } catch (ParseException e) {
+                ;
+            }
+        }
+        throw new IllegalArgumentException(value);
     }
 
     @Override
-    public String getHeader(String s) {
-        return null;
+    public String getHeader(String name) {
+        name = name.toLowerCase();
+        synchronized (headers) {
+            ArrayList values = (ArrayList) headers.get(name);
+            if (values != null)
+                return ((String) values.get(0));
+            else
+                return null;
+        }
     }
 
     @Override
-    public Enumeration getHeaders(String s) {
-        return null;
+    public Enumeration getHeaders(String name) {
+        name = name.toLowerCase();
+        synchronized (headers) {
+            ArrayList values = (ArrayList) headers.get(name);
+            if (values != null)
+                return (new Enumerator(values));
+            else
+                return (new Enumerator(empty));
+        }
     }
 
     @Override
     public Enumeration getHeaderNames() {
-        return null;
+        synchronized (headers) {
+            return (new Enumerator(headers.keySet()));
+        }
     }
 
     @Override
-    public int getIntHeader(String s) {
-        return 0;
+    public int getIntHeader(String name) {
+        String value = getHeader(name);
+        if (value == null)
+            return (-1);
+        else
+            return (Integer.parseInt(value));
     }
 
     @Override
     public String getMethod() {
-        return null;
+        return method;
     }
 
     @Override
     public String getPathInfo() {
-        return null;
+        return pathInfo;
     }
 
     @Override
@@ -187,12 +303,12 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public String getContextPath() {
-        return null;
+        return contextPath;
     }
 
     @Override
     public String getQueryString() {
-        return null;
+        return queryString;
     }
 
     @Override
@@ -217,7 +333,7 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public String getRequestURI() {
-        return null;
+        return requestURI;
     }
 
     @Override
@@ -257,17 +373,21 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public boolean isRequestedSessionIdFromUrl() {
-        return false;
+        return isRequestedSessionIdFromURL();
     }
 
     @Override
-    public Object getAttribute(String s) {
-        return null;
+    public Object getAttribute(String name) {
+        synchronized (attributes) {
+            return (attributes.get(name));
+        }
     }
 
     @Override
     public Enumeration getAttributeNames() {
-        return null;
+        synchronized (attributes) {
+            return (new Enumerator(attributes.keySet()));
+        }
     }
 
     @Override
@@ -282,42 +402,59 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public int getContentLength() {
-        return 0;
+        return contentLength;
     }
 
     @Override
     public String getContentType() {
-        return null;
+        return contentType;
     }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        return null;
+        if (reader != null)
+            throw new IllegalStateException("getInputStream has been called");
+
+        if (stream == null)
+            stream = createInputStream();
+        return (stream);
     }
 
     @Override
-    public String getParameter(String s) {
-        return null;
+    public String getParameter(String name) {
+        parseParameters();
+        String values[] = (String[]) parameters.get(name);
+        if (values != null)
+            return (values[0]);
+        else
+            return (null);
     }
 
     @Override
     public Enumeration getParameterNames() {
-        return null;
+        parseParameters();
+        return (new Enumerator(parameters.keySet()));
     }
 
     @Override
-    public String[] getParameterValues(String s) {
-        return new String[0];
+    public String[] getParameterValues(String name) {
+        parseParameters();
+        String values[] = (String[]) parameters.get(name);
+        if (values != null)
+            return (values);
+        else
+            return null;
     }
 
     @Override
     public Map getParameterMap() {
-        return null;
+        parseParameters();
+        return (this.parameters);
     }
 
     @Override
     public String getProtocol() {
-        return null;
+        return protocol;
     }
 
     @Override
@@ -337,7 +474,17 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public BufferedReader getReader() throws IOException {
-        return null;
+        if (stream != null)
+            throw new IllegalStateException("getInputStream has been called.");
+        if (reader == null) {
+            String encoding = getCharacterEncoding();
+            if (encoding == null)
+                encoding = "ISO-8859-1";
+            InputStreamReader isr =
+                    new InputStreamReader(createInputStream(), encoding);
+            reader = new BufferedReader(isr);
+        }
+        return (reader);
     }
 
     @Override
@@ -383,5 +530,10 @@ public class HttpRequest implements HttpServletRequest {
     @Override
     public String getRealPath(String s) {
         return null;
+    }
+
+
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
     }
 }
