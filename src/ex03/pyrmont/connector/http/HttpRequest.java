@@ -213,12 +213,10 @@ public class HttpRequest implements HttpServletRequest {
         requestedSessionURL = flag;
     }
 
-    @Override
     public String getAuthType() {
         return null;
     }
 
-    @Override
     public Cookie[] getCookies() {
         synchronized (cookies) {
             if (cookies.size() < 1)
@@ -228,7 +226,6 @@ public class HttpRequest implements HttpServletRequest {
         }
     }
 
-    @Override
     public long getDateHeader(String name) {
         String value = getHeader(name);
         if (value == null)
@@ -246,7 +243,6 @@ public class HttpRequest implements HttpServletRequest {
         throw new IllegalArgumentException(value);
     }
 
-    @Override
     public String getHeader(String name) {
         name = name.toLowerCase();
         synchronized (headers) {
@@ -258,7 +254,6 @@ public class HttpRequest implements HttpServletRequest {
         }
     }
 
-    @Override
     public Enumeration getHeaders(String name) {
         name = name.toLowerCase();
         synchronized (headers) {
@@ -270,14 +265,12 @@ public class HttpRequest implements HttpServletRequest {
         }
     }
 
-    @Override
     public Enumeration getHeaderNames() {
         synchronized (headers) {
             return (new Enumerator(headers.keySet()));
         }
     }
 
-    @Override
     public int getIntHeader(String name) {
         String value = getHeader(name);
         if (value == null)
@@ -286,131 +279,106 @@ public class HttpRequest implements HttpServletRequest {
             return (Integer.parseInt(value));
     }
 
-    @Override
     public String getMethod() {
         return method;
     }
 
-    @Override
     public String getPathInfo() {
         return pathInfo;
     }
 
-    @Override
     public String getPathTranslated() {
         return null;
     }
 
-    @Override
     public String getContextPath() {
         return contextPath;
     }
 
-    @Override
     public String getQueryString() {
         return queryString;
     }
 
-    @Override
     public String getRemoteUser() {
         return null;
     }
 
-    @Override
     public boolean isUserInRole(String s) {
         return false;
     }
 
-    @Override
     public Principal getUserPrincipal() {
         return null;
     }
 
-    @Override
     public String getRequestedSessionId() {
         return null;
     }
 
-    @Override
     public String getRequestURI() {
         return requestURI;
     }
 
-    @Override
     public StringBuffer getRequestURL() {
         return null;
     }
 
-    @Override
     public String getServletPath() {
         return null;
     }
 
-    @Override
     public HttpSession getSession(boolean b) {
         return null;
     }
 
-    @Override
     public HttpSession getSession() {
         return null;
     }
 
-    @Override
     public boolean isRequestedSessionIdValid() {
         return false;
     }
 
-    @Override
     public boolean isRequestedSessionIdFromCookie() {
         return false;
     }
 
-    @Override
     public boolean isRequestedSessionIdFromURL() {
         return false;
     }
 
-    @Override
     public boolean isRequestedSessionIdFromUrl() {
         return isRequestedSessionIdFromURL();
     }
 
-    @Override
     public Object getAttribute(String name) {
         synchronized (attributes) {
             return (attributes.get(name));
         }
     }
 
-    @Override
     public Enumeration getAttributeNames() {
         synchronized (attributes) {
             return (new Enumerator(attributes.keySet()));
         }
     }
 
-    @Override
     public String getCharacterEncoding() {
         return null;
     }
 
-    @Override
     public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
 
     }
 
-    @Override
     public int getContentLength() {
         return contentLength;
     }
 
-    @Override
     public String getContentType() {
         return contentType;
     }
 
-    @Override
     public ServletInputStream getInputStream() throws IOException {
         if (reader != null)
             throw new IllegalStateException("getInputStream has been called");
@@ -420,7 +388,6 @@ public class HttpRequest implements HttpServletRequest {
         return (stream);
     }
 
-    @Override
     public String getParameter(String name) {
         parseParameters();
         String values[] = (String[]) parameters.get(name);
@@ -430,13 +397,11 @@ public class HttpRequest implements HttpServletRequest {
             return (null);
     }
 
-    @Override
     public Enumeration getParameterNames() {
         parseParameters();
         return (new Enumerator(parameters.keySet()));
     }
 
-    @Override
     public String[] getParameterValues(String name) {
         parseParameters();
         String values[] = (String[]) parameters.get(name);
@@ -446,33 +411,27 @@ public class HttpRequest implements HttpServletRequest {
             return null;
     }
 
-    @Override
     public Map getParameterMap() {
         parseParameters();
         return (this.parameters);
     }
 
-    @Override
     public String getProtocol() {
         return protocol;
     }
 
-    @Override
     public String getScheme() {
         return null;
     }
 
-    @Override
     public String getServerName() {
         return null;
     }
 
-    @Override
     public int getServerPort() {
         return 0;
     }
 
-    @Override
     public BufferedReader getReader() throws IOException {
         if (stream != null)
             throw new IllegalStateException("getInputStream has been called.");
@@ -487,47 +446,38 @@ public class HttpRequest implements HttpServletRequest {
         return (reader);
     }
 
-    @Override
     public String getRemoteAddr() {
         return null;
     }
 
-    @Override
     public String getRemoteHost() {
         return null;
     }
 
-    @Override
     public void setAttribute(String s, Object o) {
 
     }
 
-    @Override
     public void removeAttribute(String s) {
 
     }
 
-    @Override
     public Locale getLocale() {
         return null;
     }
 
-    @Override
     public Enumeration getLocales() {
         return null;
     }
 
-    @Override
     public boolean isSecure() {
         return false;
     }
 
-    @Override
     public RequestDispatcher getRequestDispatcher(String s) {
         return null;
     }
 
-    @Override
     public String getRealPath(String s) {
         return null;
     }

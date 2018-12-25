@@ -291,7 +291,6 @@ public class HttpResponse implements HttpServletResponse {
             write(b, off + leftoverStart, leftoverLen);
     }
 
-    @Override
     public void addCookie(Cookie cookie) {
         if (isCommitted())
             return;
@@ -300,65 +299,54 @@ public class HttpResponse implements HttpServletResponse {
         }
     }
 
-    @Override
     public boolean containsHeader(String name) {
         synchronized (headers) {
             return (headers.get(name) != null);
         }
     }
 
-    @Override
     public String encodeURL(String s) {
         return null;
     }
 
-    @Override
     public String encodeRedirectURL(String s) {
         return null;
     }
 
 
-    @Override
     public String encodeUrl(String url) {
         return encodeURL(url);
     }
 
 
-    @Override
     public String encodeRedirectUrl(String url) {
         return encodeRedirectURL(url);
     }
 
-    @Override
     public void sendError(int i, String s) throws IOException {
 
     }
 
-    @Override
     public void sendError(int i) throws IOException {
 
     }
 
-    @Override
     public void sendRedirect(String s) throws IOException {
 
     }
 
-    @Override
     public void setDateHeader(String name, long value) {
         if (isCommitted())
             return;
         setHeader(name, format.format(new Date(value)));
     }
 
-    @Override
     public void addDateHeader(String name, long value) {
         if (isCommitted())
             return;
         addHeader(name, format.format(new Date(value)));
     }
 
-    @Override
     public void setHeader(String name, String value) {
         if (isCommitted())
             return;
@@ -382,7 +370,6 @@ public class HttpResponse implements HttpServletResponse {
         }
     }
 
-    @Override
     public void addHeader(String name, String value) {
         if (isCommitted())
             return;
@@ -396,31 +383,26 @@ public class HttpResponse implements HttpServletResponse {
         }
     }
 
-    @Override
     public void setIntHeader(String name, int value) {
         if (isCommitted())
             return;
         setHeader(name, "" + value);
     }
 
-    @Override
     public void addIntHeader(String name, int value) {
         if (isCommitted())
             return;
         addHeader(name, "" + value);
     }
 
-    @Override
     public void setStatus(int i) {
 
     }
 
-    @Override
     public void setStatus(int i, String s) {
 
     }
 
-    @Override
     public String getCharacterEncoding() {
         if (encoding == null)
             return ("ISO-8859-1");
@@ -428,12 +410,10 @@ public class HttpResponse implements HttpServletResponse {
             return (encoding);
     }
 
-    @Override
     public ServletOutputStream getOutputStream() throws IOException {
         return null;
     }
 
-    @Override
     public PrintWriter getWriter() throws IOException {
         ResponseStream newStream = new ResponseStream(this);
         newStream.setCommit(false);
@@ -443,29 +423,24 @@ public class HttpResponse implements HttpServletResponse {
         return writer;
     }
 
-    @Override
     public void setContentLength(int length) {
         if (isCommitted())
             return;
         this.contentLength = length;
     }
 
-    @Override
     public void setContentType(String s) {
 
     }
 
-    @Override
     public void setBufferSize(int i) {
 
     }
 
-    @Override
     public int getBufferSize() {
         return 0;
     }
 
-    @Override
     public void flushBuffer() throws IOException {
         if (bufferCount > 0) {
             try {
@@ -476,22 +451,18 @@ public class HttpResponse implements HttpServletResponse {
         }
     }
 
-    @Override
     public void resetBuffer() {
 
     }
 
-    @Override
     public boolean isCommitted() {
         return (committed);
     }
 
-    @Override
     public void reset() {
 
     }
 
-    @Override
     public void setLocale(Locale locale) {
         if (isCommitted())
             return;
@@ -507,7 +478,6 @@ public class HttpResponse implements HttpServletResponse {
         }
     }
 
-    @Override
     public Locale getLocale() {
         return null;
     }
