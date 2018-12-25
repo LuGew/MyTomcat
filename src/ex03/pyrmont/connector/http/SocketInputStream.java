@@ -169,7 +169,6 @@ public class SocketInputStream extends InputStream {
 
     }
 
-    @Override
     public int read()
             throws IOException {
         if (pos >= count) {
