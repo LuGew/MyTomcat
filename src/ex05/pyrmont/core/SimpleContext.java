@@ -240,7 +240,9 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public void addServletMapping(String pattern, String name) {
-
+        synchronized (servletMappings) {
+            servletMappings.put(pattern, name);
+        }
     }
 
     public void addTaglib(String uri, String location) {
@@ -380,7 +382,9 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public String findServletMapping(String pattern) {
-        return null;
+        synchronized (servletMappings) {
+            return ((String) servletMappings.get(pattern));
+        }
     }
 
     public String[] findServletMappings() {
@@ -516,11 +520,15 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public Loader getLoader() {
-        return null;
+        if (loader != null)
+            return (loader);
+        if (parent != null)
+            return (parent.getLoader());
+        return (null);
     }
 
     public void setLoader(Loader loader) {
-
+        this.loader = loader;
     }
 
     public Logger getLogger() {
@@ -588,7 +596,8 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public void addChild(Container child) {
-
+        child.setParent(this);
+        children.put(child.getName(), child);
     }
 
     public void addContainerListener(ContainerListener listener) {
@@ -596,7 +605,20 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public void addMapper(Mapper mapper) {
-
+        mapper.setContainer((Container) this);
+        this.mapper = mapper;
+        synchronized (mappers) {
+            if (mappers.get(mapper.getProtocol()) != null) {
+                throw new IllegalArgumentException("addMapper:  Protocol '" + mapper.getProtocol() + "' is not unique");
+            }
+            mapper.setContainer((Container) this);
+            mappers.put(mapper.getProtocol(), mapper);
+            if (mappers.size() == 1) {
+                this.mapper = mapper;
+            } else {
+                this.mapper = null;
+            }
+        }
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -604,11 +626,19 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public Container findChild(String name) {
-        return null;
+        if (name == null) {
+            return null;
+        }
+        synchronized (children) {
+            return ((Container) children.get(name));
+        }
     }
 
     public Container[] findChildren() {
-        return new Container[0];
+        synchronized (children) {
+            Container results[] = new Container[children.size()];
+            return ((Container[]) children.values().toArray(results));
+        }
     }
 
     public ContainerListener[] findContainerListeners() {
@@ -616,7 +646,14 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public Mapper findMapper(String protocol) {
-        return null;
+        if (mapper != null) {
+            return mapper;
+        } else {
+            synchronized (mappers) {
+                return ((Mapper) mappers.get(protocol));
+            }
+        }
+
     }
 
     public Mapper[] findMappers() {
@@ -624,31 +661,35 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     public Valve getBasic() {
-        return null;
+        return pipeline.getBasic();
     }
 
     public void setBasic(Valve valve) {
-
+        pipeline.setBasic(valve);
     }
 
     public void addValve(Valve valve) {
-
+        pipeline.addValve(valve);
     }
 
     public Valve[] getValves() {
-        return new Valve[0];
+        return pipeline.getValves();
     }
 
     public void invoke(Request request, Response response) throws IOException, ServletException {
-
+        pipeline.invoke(request, response);
     }
 
     public void removeValve(Valve valve) {
-
+        pipeline.removeValve(valve);
     }
 
     public Container map(Request request, boolean update) {
-        return null;
+        Mapper mapper = findMapper(request.getRequest().getProtocol());
+        if (mapper == null) {
+            return null;
+        }
+        return (mapper.map(request, update));
     }
 
     public void removeChild(Container child) {
