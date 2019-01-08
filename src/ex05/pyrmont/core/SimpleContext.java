@@ -21,6 +21,7 @@ public class SimpleContext implements Context, Pipeline {
     private Container parent = null;
 
     public SimpleContext() {
+        pipeline.setBasic(new SimpleContextValve());
     }
 
     public Object[] getApplicationListeners() {
