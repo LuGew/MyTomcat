@@ -5,7 +5,7 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 
-public class SimpleContxtConfig implements LifecycleListener {
+public class SimpleContextConfig implements LifecycleListener {
 
     public void lifecycleEvent(LifecycleEvent event) {
         if (Lifecycle.START_EVENT.equals(event.getType())) {
